@@ -18,6 +18,17 @@ def autenticar(usuario, senha):
 if "autenticado" not in st.session_state:
     st.session_state.autenticado = False
 
+# 🔄 Verifica se já há um login salvo em arquivo
+if not st.session_state.autenticado:
+    try:
+        with open("data/usuario_logado.txt", "r") as f:
+            usuario_salvo = f.read().strip()
+            if usuario_salvo:
+                st.session_state.usuario = usuario_salvo
+                st.session_state.autenticado = True
+    except FileNotFoundError:
+        pass
+
 # Tela de login
 if not st.session_state.autenticado:
     st.title("Login")
@@ -28,11 +39,31 @@ if not st.session_state.autenticado:
         if autenticar(usuario, senha):
             st.success("Login realizado com sucesso!")
             st.session_state.autenticado = True
+            st.session_state.usuario = usuario
+
+            # ✅ Salva o login em arquivo
+            os.makedirs("data", exist_ok=True)
+            with open("data/usuario_logado.txt", "w") as f:
+                f.write(usuario)
+
             st.rerun()
         else:
             st.error("Usuário ou senha inválidos.")
 
-    st.stop() 
+    st.stop()
+
+# ⬇️ Botão de logout na sidebar
+if st.session_state.get("autenticado", False):
+    st.sidebar.markdown(f"👤 Usuário: **{st.session_state.get('usuario', 'Desconhecido')}**")
+    if st.sidebar.button("🔒 Logout"):
+        st.session_state.autenticado = False
+        st.session_state.usuario = ""
+
+        # 🧹 Remove o arquivo de login
+        if os.path.exists("data/usuario_logado.txt"):
+            os.remove("data/usuario_logado.txt")
+
+        st.rerun()
 
 # Criação de diretório de dados
 if not os.path.exists("data"):
