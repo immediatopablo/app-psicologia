@@ -3,6 +3,37 @@ import pandas as pd
 import os
 from datetime import datetime
 
+# Caminho dos usuários (pode adaptar se estiver em outra pasta)
+usuarios_path = "data/usuarios.csv"
+
+# Função de verificação
+def autenticar(usuario, senha):
+    usuarios = pd.read_csv(usuarios_path)
+    for _, row in usuarios.iterrows():
+        if row["usuario"] == usuario and row["senha"] == senha:
+            return True
+    return False
+
+# Sessão de autenticação
+if "autenticado" not in st.session_state:
+    st.session_state.autenticado = False
+
+# Tela de login
+if not st.session_state.autenticado:
+    st.title("Login")
+    usuario = st.text_input("Usuário")
+    senha = st.text_input("Senha", type="password")
+
+    if st.button("Entrar"):
+        if autenticar(usuario, senha):
+            st.success("Login realizado com sucesso!")
+            st.session_state.autenticado = True
+            st.rerun()
+        else:
+            st.error("Usuário ou senha inválidos.")
+
+    st.stop() 
+
 # Criação de diretório de dados
 if not os.path.exists("data"):
     os.makedirs("data")
