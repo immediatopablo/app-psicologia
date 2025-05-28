@@ -31,7 +31,7 @@ def listar_pacientes():
     usuario = st.session_state.get("usuario", "")
     df = df[df["Responsavel"] == usuario]
 
-    st.dataframe(df)
+    st.dataframe(df.reset_index(drop=True), use_container_width=True)
 
     if not df.empty:
         st.subheader("Editar ou Excluir Paciente")
